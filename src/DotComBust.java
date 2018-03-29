@@ -1,13 +1,49 @@
 import java.util.ArrayList;
+import javax.swing.*;
 
-public class DotComBust {
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.*;
+
+
+public class DotComBust implements ActionListener {
 
 	// Declare, instantiate, and initialize the private variables	
 	private GameHelper helper = new GameHelper();
 	private ArrayList<DotCom> dotComList = new ArrayList<DotCom>();
 	private	int numGuesses = 0;                           		
-
+	
+	private JFrame frame;
+	
+	enum Result {HIT, MISS, KILL}
+	
 	private void setUpGame() {
+
+		frame = new JFrame("Game of Killer.Com");
+		
+		JPanel panel = new JPanel();
+		GamePiece[] gameBoard = new GamePiece[49];
+
+		char alpha = 'a';
+		int arrayIndex = 0;
+		
+		for(int j = 0; j < 7; j++) {
+			for (int i = 0; i < 7; i++) {
+
+				gameBoard[arrayIndex] = new GamePiece();
+				gameBoard[arrayIndex].addActionListener(this);
+				gameBoard[arrayIndex].cellLabel = alpha + Integer.toString(i);
+				gameBoard[arrayIndex].gameBoardIndex = arrayIndex;
+				panel.add(gameBoard[arrayIndex]);
+				arrayIndex++;
+			}
+			alpha +=1;
+		}		
+
+		frame.getContentPane().add(BorderLayout.CENTER, panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(365, 262);
+		frame.setVisible(true);
 
 		// Create the DotCom objects		
 		DotCom dc1 = new DotCom();
@@ -33,46 +69,41 @@ public class DotComBust {
 		for(DotCom dotComToSet: dotComList) {
 			ArrayList<String> newLocation = helper.placeDotCom(3);
 			dotComToSet.setLocation(newLocation);
-//			System.out.println("Setting up " + dotComToSet.getName());
 		}
 		
 	}
 	
 	private void startPlaying() {
-		
+
 		while(!dotComList.isEmpty()) {
-			String userGuess = helper.getUserInput("Enter a guess: ");
-			checkUserGuess(userGuess);
-			
 		}
 		
 		finishGame();
 	}
 	
 	
-	private void checkUserGuess(String userGuess) {
+	private Result checkUserGuess(String userGuess) {
 		
-
 		numGuesses++;
+		Result retVal = Result.MISS;
 		String result = "Miss";
 		
 		for(int i = 0; i < dotComList.size(); i++) {
 			
-//				System.out.println("Checking: " + dotComList.get(i).getName());
-			
 				result = dotComList.get(i).checkYourself(userGuess);
+				
 				if(result == "Hit") {
+					retVal = Result.HIT;
 					break;
 				}
 				if(result == "Kill") {
 					dotComList.remove(i);
+					retVal = Result.KILL;
 					break;
 			}
-				
 		}
 		
-		System.out.println(result);
-		
+		return retVal;
 	}
 	
 	private void finishGame() {
@@ -94,5 +125,40 @@ public class DotComBust {
 		game.startPlaying();
 		
 	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		GamePiece piece = (GamePiece) e.getSource();
+		Result myResult = checkUserGuess(piece.cellLabel);
+		Color newColor = null; 
+		
+		if (Result.HIT == myResult){
+			newColor = Color.RED;
+		} else if (Result.KILL == myResult){
+			newColor = Color.RED;
+		} else if (Result.MISS == myResult){
+			newColor = Color.GRAY;
+		}
+	
+		piece.setBackground(newColor);
+		
+		if(dotComList.isEmpty()) {
+			finishGame();
+		}
+		
+	}
+	
+	class GamePiece extends JButton {
+		
+		 private String cellLabel;
+		 int gameBoardIndex;
+		 
+		 GamePiece() {
+			 super("   ");
+		 }
+		
+	}
+	
 	
 }

@@ -9,23 +9,6 @@ public class GameHelper {
 	private int [] grid = new int[gridSize1];
 	private int comCount = 0;
 	
-		
-	public String getUserInput(String prompt) {
-		String inputLine = null;
-		System.out.print(prompt + " ");
-		try {
-			BufferedReader is = new BufferedReader(new InputStreamReader(System.in));
-			inputLine = is.readLine();
-			if(inputLine.length() == 0) {
-				return null;
-			} 
-			} catch (IOException e) {
-				System.out.println("IOExpeption: " + e);
-		}
-		
-		return inputLine.toLowerCase();
-	}
-
 	public ArrayList<String> placeDotCom(int comSize){
 		
 		ArrayList<String> alphaCells = new ArrayList<String>();
@@ -74,14 +57,7 @@ public class GameHelper {
 			
 			alphaCells.add(temp.concat(Integer.toString(row)));
 			x++;
-//			System.out.println(" coord "+x+ " = " + alphaCells.get(x-1));
 		}
-		
-			
 		return alphaCells;
-		
 	}
-	
-	
-	
 }
