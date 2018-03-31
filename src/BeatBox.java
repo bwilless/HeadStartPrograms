@@ -10,12 +10,7 @@ import java.util.*;
 public class BeatBox {
 	
 	private JFrame frame;
-	private JButton startButton;
-	private JButton stopButton;
-	private JButton tempoUpButton;
-	private JButton tempoDownButton;
 	private DrumType drums[];
-	private JPanel checkBoxPanel[];
 	private Font font;
 			
 	public static void main (String[] args) {
@@ -30,6 +25,13 @@ public class BeatBox {
 
 		// Create the JFrame
 		frame = new JFrame("Cyber Beat Box");
+
+		JButton startButton;
+		JButton stopButton;
+		JButton tempoUpButton;
+		JButton tempoDownButton;
+		JPanel checkBoxPanel[];
+		
 		
 		// Create the 4 buttons we need and a JPannel to hold them all
 		startButton = new JButton("Start");
@@ -39,6 +41,12 @@ public class BeatBox {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		
+		// Wire the buttons to thier handlers
+		startButton.addActionListener(new StartButton());
+		stopButton.addActionListener(new StopButton());
+		tempoUpButton.addActionListener(new TempoUpButton());
+		tempoDownButton.addActionListener(new TempoDownButton());
+				
 		// Place the swing (button) objects into the panel
 		// Add the panel to the frame's East region
 		buttonPanel.add(startButton);
@@ -47,24 +55,24 @@ public class BeatBox {
 		buttonPanel.add(tempoDownButton);
 		frame.getContentPane().add(BorderLayout.EAST, buttonPanel);
 
+		// define a font for the JLabel ojbects
 		font = new Font("Courier", Font.BOLD,15);
 		
 		// drums will hold each of the 16 drums.  
 		drums = new DrumType[16];
 		
 		// Create each drumType
-		String[] drumTypeList = {"Bass Drum", "Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap", "High Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga", "Cowbell", "Visraslap", "Low-mid Tom", "High Agogo", "Open Hi Conga"};
-		
-		GridLayout grid = new GridLayout(16, 16);
-		grid.setVgap(1);
-		grid.setHgap(2);
+		String[] drumTypeList = {"  Bass Drum", "  Closed Hi-Hat", "  Open Hi-Hat", 
+				"  Acoustic Snare", "  Crash Cymbal", "  Hand Clap", "  High Tom", 
+				"  Hi Bongo", "  Maracas", "  Whistle", "  Low Conga", "  Cowbell", 
+				"  Visraslap", "  Low-mid Tom", "  High Agogo", "  Open Hi Conga"};
 		
 		// instrumentTypePanel will hold all the labels for each drum type
-		JPanel instrumentTypePanel = new JPanel(grid);
+		JPanel instrumentTypePanel = new JPanel();
 		instrumentTypePanel.setLayout(new BoxLayout(instrumentTypePanel, BoxLayout.Y_AXIS));
 
 		// instrumentcheckBoxPanel is the center panel that will contain 16 checkBoxPanels.
-		JPanel instrumentCheckBoxPanel = new JPanel(grid);
+		JPanel instrumentCheckBoxPanel = new JPanel();
 		instrumentCheckBoxPanel.setLayout(new BoxLayout(instrumentCheckBoxPanel, BoxLayout.Y_AXIS));
 		
 		checkBoxPanel = new JPanel[16]; 		
@@ -86,10 +94,10 @@ public class BeatBox {
 			instrumentTypePanel.add(drums[i].rowLabel);
 
 			// create a new checkBoxPanel.
-			checkBoxPanel[i] = new JPanel(grid);
+			checkBoxPanel[i] = new JPanel();
 			checkBoxPanel[i].setLayout(new BoxLayout(checkBoxPanel[i], BoxLayout.X_AXIS));
 			
-			// Add the checkBox List for the current drum tpye
+			// Add the checkBox List for the current drum type
 			for(int j = 0; j < 16; j++) {
 				
 				checkBoxPanel[i].add(drums[i].checkBoxList[j]);
@@ -101,7 +109,7 @@ public class BeatBox {
 		frame.getContentPane().add(BorderLayout.CENTER, instrumentCheckBoxPanel);
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(600, 600);
+		frame.setSize(650, 400);
 		frame.setVisible(true);
 	}
 	
@@ -124,4 +132,36 @@ public class BeatBox {
 		
 	}
 
+	class StartButton implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("User hit the Start Button");
+		}
+	}
+
+	class StopButton implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("User hit the Stop Button");
+		}
+	}
+
+	class TempoUpButton implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("User hit the Tempo Up Button");
+		}
+	}
+
+
+	class TempoDownButton implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("User hit the Tempo Down Button");
+		}
+	}
 }
