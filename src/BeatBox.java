@@ -1,4 +1,5 @@
-import javax.sound.midi.MidiEvent;
+
+import javax.sound.midi.*;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -12,6 +13,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+
+import java.io.*;
 
 public class BeatBox {
 	
@@ -44,28 +47,46 @@ public class BeatBox {
 		JButton stopButton;
 		JButton tempoUpButton;
 		JButton tempoDownButton;
+		JButton serilizeItButton;
+		JButton restoreButton;
+		JButton clearButton;
+		JButton setRandomButton;
 		JPanel checkBoxPanel[];
-		
+			
 		// Create the 4 buttons we need and a JPannel to hold them all
 		startButton = new JButton("Start");
 		stopButton = new JButton("Stop");
 		tempoUpButton = new JButton("Tempo Up");
 		tempoDownButton = new JButton("Tempo Down");
+		serilizeItButton = new JButton("SeralizeIT");
+		restoreButton = new JButton("Restore");
+		clearButton = new JButton("Clear Checks");
+		setRandomButton = new JButton("Random beats");
+		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 		
-		// Wire the buttons to thier handlers
+		// Wire the buttons to their handlers
 		startButton.addActionListener(new StartButton());
 		stopButton.addActionListener(new StopButton());
 		tempoUpButton.addActionListener(new TempoUpButton());
 		tempoDownButton.addActionListener(new TempoDownButton());
-				
+		serilizeItButton.addActionListener(new SeralizeItButton());
+		restoreButton.addActionListener(new RestoreButton());
+		clearButton.addActionListener(new ClearButton());;
+		setRandomButton.addActionListener(new SetRandomButton());
+		
 		// Place the swing (button) objects into the panel
 		// Add the panel to the frame's East region
 		buttonPanel.add(startButton);
 		buttonPanel.add(stopButton);
 		buttonPanel.add(tempoUpButton);
 		buttonPanel.add(tempoDownButton);
+		buttonPanel.add(serilizeItButton);
+		buttonPanel.add(restoreButton);
+		buttonPanel.add(clearButton);
+		buttonPanel.add(setRandomButton);
+		
 		frame.getContentPane().add(BorderLayout.EAST, buttonPanel);
 
 		// drums will hold each of the 16 drums.  
@@ -201,7 +222,6 @@ public class BeatBox {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-//			System.out.println("User hit the Stop Button");
 			sequencer.stop();
 		}
 	}
@@ -210,7 +230,6 @@ public class BeatBox {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-//			System.out.println("User hit the Tempo Up Button");
 			float tempoFactor = sequencer.getTempoFactor();
 			sequencer.setTempoFactor((float) (tempoFactor * 1.03));
 		}
@@ -221,10 +240,115 @@ public class BeatBox {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-//			System.out.println("User hit the Tempo Down Button");
 			float tempoFactor = sequencer.getTempoFactor();
 			sequencer.setTempoFactor((float) (tempoFactor * .97));
 
+		}
+	}
+	
+	class SeralizeItButton implements ActionListener{
+		public void actionPerformed(ActionEvent arg0) {
+			
+			JFileChooser fc = new JFileChooser();
+			File file;
+			boolean serilizeCheckBoxList[][] = new boolean[16][16]; 
+			
+			for(int i = 0; i < 16; i++) {
+
+				// Add the checkBox List for the current drum type
+				for(int j = 0; j < 16; j++) {
+					
+					serilizeCheckBoxList[i][j] = drums.get(i).checkBoxList.get(j).isSelected();
+				}
+			}
+
+			fc.setDialogTitle("Please specify the file to save your BeatBox");
+			fc.showOpenDialog(frame);
+			file = fc.getSelectedFile();
+			
+			if(file == null) {
+				return;
+			}
+			
+			try {
+				FileOutputStream fileStream = new FileOutputStream(file);
+				ObjectOutputStream os = new ObjectOutputStream(fileStream);
+				os.writeObject(serilizeCheckBoxList);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		
+		}
+	}
+	
+	class RestoreButton implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+		
+			JFileChooser fc = new JFileChooser();
+			File file;
+
+			boolean serilizeCheckBoxList[][] = new boolean[16][16]; 
+
+			fc.setDialogTitle("Please specify the file to restore");
+			fc.showOpenDialog(frame);
+			file = fc.getSelectedFile();
+
+			if(file == null) {
+				return;
+			}
+			
+			try {
+				FileInputStream fileStream = new FileInputStream(file);
+				ObjectInputStream is = new ObjectInputStream(fileStream);
+			
+				serilizeCheckBoxList = (boolean[][]) (is.readObject());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
+			for(int i = 0; i < 16; i++) {
+
+				// Add the checkBox List for the current drum type
+				for(int j = 0; j < 16; j++) {
+					
+					drums.get(i).checkBoxList.get(j).setSelected(serilizeCheckBoxList[i][j]);
+				}
+			}
+			
+			sequencer.stop();
+			buildTrackAndStart();
+			
+		}
+	}
+		
+	
+	class ClearButton implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			
+			for(int i = 0; i < 16; i++) {
+
+				// Add the checkBox List for the current drum type
+				for(int j = 0; j < 16; j++) {
+					
+					drums.get(i).checkBoxList.get(j).setSelected(false);
+				}
+			}
+
+			
+		}
+	}
+	
+	class SetRandomButton implements ActionListener {
+		public void actionPerformed(ActionEvent arg0) {
+			
+			int randomI, randomJ;
+			
+			for(int i = 0; i < 24; i++) {
+				randomI = (int) (Math.random() * 16);
+				randomJ = (int) (Math.random() * 16);
+				drums.get(randomI).checkBoxList.get(randomJ).setSelected(true);
+			}
+			
 		}
 	}
 	
